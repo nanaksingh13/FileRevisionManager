@@ -47,15 +47,6 @@ A Python script for monitoring and managing file revisions based on file modific
 
 3. The script will continuously monitor the specified files and directories for changes and create revisions as needed.
 
-### Configuration
-
-You can customize the file revision configuration by editing the `file_config.csv` file. The CSV file contains two columns: `file_path` and `revision_dir`. Specify the file paths to monitor and the corresponding revision directories.
-
-```csv
-file_path,revision_dir
-/path/to/file1.txt,/path/to/revisions1
-/path/to/file2.txt,/path/to/revisions2
-```
 
 ## Author
 
