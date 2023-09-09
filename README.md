@@ -1,5 +1,3 @@
-Certainly! Here's a simple README file template that you can use for your GitHub repository to describe your Python file revision management script:
-
 # File Revision Management System
 
 ![Python Version](https://img.shields.io/badge/python-3.8%2B-blue)
@@ -27,25 +25,29 @@ A Python script for monitoring and managing file revisions based on file modific
 1. Clone this repository to your local machine:
 
    ```shell
-   git clone https://github.com/yourusername/your-repo.git
+   git clone https://github.com/nanaksingh13/FileRevisionManager.git
    ```
 
 2. Install the required dependencies:
 
    ```shell
    pip install watchdog
+   pip install hashlib
+   pip install tkinter
+   pip install pathlib
    ```
 
 ### Usage
 
-1. Configure the file revision settings by editing the `file_config.csv` file.
-2. Run the script:
+1. Run the script:
 
    ```shell
    python file_revision.py
    ```
 
-3. The script will continuously monitor the specified files and directories for changes and create revisions as needed.
+2. The script will continuously monitor the specified files and directories for changes and create revisions as needed.
+
+### Upcoming Feature
 
 
 ## Author
