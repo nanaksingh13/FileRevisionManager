@@ -3,6 +3,7 @@ from tkinter import ttk, filedialog, simpledialog
 import threading
 import csv
 import logging
+import json
 from file_revision import FileRevisionManager
 
 LOG_FILE = "file_revision.log"
@@ -89,6 +90,10 @@ class FileRevisionTracker(tk.Tk):
     def _setup_config_buttons(self, parent):
         btn_frame = ttk.Frame(parent)
         btn_frame.pack(fill=tk.X, expand=True)
+
+        # Add these lines to create the buttons and pack them into the frame.
+        ttk.Button(btn_frame, text="Import", command=self.import_config).pack(side=tk.LEFT, padx=10)
+        ttk.Button(btn_frame, text="Export", command=self.export_config).pack(side=tk.LEFT, padx=10)
 
         ttk.Button(btn_frame, text="Add", command=self.add_file_config).pack(side=tk.LEFT, padx=10)
         ttk.Button(btn_frame, text="Edit", command=self.edit_file_config).pack(side=tk.LEFT, padx=10)
@@ -244,6 +249,52 @@ class FileRevisionTracker(tk.Tk):
 
         # Schedule a new search in 300 milliseconds
         self._after_id = self.after(300, self.search_files)
+
+    def import_config(self):
+        filetypes = [("CSV files", "*.csv"), ("JSON files", "*.json")]
+        filename = filedialog.askopenfilename(filetypes=filetypes)
+
+        if filename.endswith('.csv'):
+            self._import_from_csv(filename)
+        elif filename.endswith('.json'):
+            self._import_from_json(filename)
+
+        self.write_to_csv()
+
+    def export_config(self):
+        filetypes = [("CSV files", "*.csv"), ("JSON files", "*.json")]
+        filename = filedialog.asksaveasfilename(filetypes=filetypes)
+
+        if filename.endswith('.csv'):
+            self._export_to_csv(filename)
+        elif filename.endswith('.json'):
+            self._export_to_json(filename)
+
+    def _import_from_csv(self, filename):
+        with open(filename, 'r') as file:
+            reader = csv.DictReader(file)
+            for row in reader:
+                self.manager.FILE_PATHS[row['file_path']] = row['revision_dir']
+        self.load_file_config_data()
+
+    def _export_to_csv(self, filename):
+        with open(filename, 'w', newline='') as file:
+            fieldnames = ['file_path', 'revision_dir']
+            writer = csv.DictWriter(file, fieldnames=fieldnames)
+            writer.writeheader()
+            for path, revision_dir in self.manager.FILE_PATHS.items():
+                writer.writerow({'file_path': path, 'revision_dir': revision_dir})
+
+    def _import_from_json(self, filename):
+        with open(filename, 'r') as file:
+            data = json.load(file)
+            self.manager.FILE_PATHS = data
+        self.load_file_config_data()
+
+    def _export_to_json(self, filename):
+        with open(filename, 'w') as file:
+            json.dump(self.manager.FILE_PATHS, file, indent=4)
+
 
 if __name__ == "__main__":
     app = FileRevisionTracker()
