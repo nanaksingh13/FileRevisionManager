@@ -42,10 +42,12 @@ A Python script for monitoring and managing file revisions based on file modific
 1. Run the script:
 
    ```shell
-   python file_revision.py
+   python gui.py
    ```
 
 2. The script will continuously monitor the specified files and directories for changes and create revisions as needed.
+
+
 
 ### Upcoming Feature
 
