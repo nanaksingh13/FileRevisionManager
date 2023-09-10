@@ -47,7 +47,7 @@ A Python script for monitoring and managing file revisions based on file modific
 
 2. The script will continuously monitor the specified files and directories for changes and create revisions as needed.
 
-
+### GUI
 
 ### Upcoming Feature
 
