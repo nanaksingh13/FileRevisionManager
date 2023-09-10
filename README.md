@@ -49,6 +49,8 @@ A Python script for monitoring and managing file revisions based on file modific
 
 ### GUI
 
+![Screenshot 2023-09-10 190014](https://github.com/nanaksingh13/FileRevisionManager/assets/66524832/fd0cb794-f117-4a6c-8a4c-ca57b1c83cdd)
+
 ### Upcoming Feature
 
 - [ ] **Batch Import/Export:** Allow users to import a batch of file configurations at once (from a CSV or JSON file) or export the current configurations.
