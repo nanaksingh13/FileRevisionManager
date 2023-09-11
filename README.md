@@ -59,6 +59,7 @@ A Python script for monitoring and managing file revisions based on file modific
 - [ ] **Real-time Notification:** Implement desktop notifications to alert the user when a file has been modified.
 - [ ] **Themes and Customization:** Allow users to switch between light and dark themes. Also, let users customize the look and feel, such as font types, sizes, and colors.
 - [ ] **Help and Documentation:** Integrate a help section that provides a user guide, FAQ, and troubleshooting tips.
+- [ ] **UI/UX Improvements:** Better more intrutive, mordern interface.
 
 ## Author
 
