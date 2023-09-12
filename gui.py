@@ -35,19 +35,16 @@ class TextHandler(logging.Handler):
 
 
 class FileRevisionTracker(tk.Tk):
-    """Main Application Class."""
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.title("File Revision Tracker")
         self.geometry("900x700")
-
         self.dark_mode = False  # Initially set to light mode
         self.manager = FileRevisionManager()
         self._after_id = None
+        customtkinter.set_widget_scaling(1.0)  # Set UI scaling to 100%
 
         self.init_ui()
-
         self.thread = threading.Thread(target=self.monitor_files)
         self.thread.daemon = True
         self.thread.start()
@@ -57,17 +54,23 @@ class FileRevisionTracker(tk.Tk):
         self.create_file_config_panel()
         self.create_status_panel()
         self.create_log_panel()
-        self.create_dark_mode_button()  # Add a button to toggle dark mode
-
+        self.create_dark_mode_button()
 
     def create_file_config_panel(self):
         """Panel for file configuration."""
-        panel = self._create_panel("File Configuration")
+        panel = customtkinter.CTkFrame(self)
         panel.grid(row=0, column=0, padx=10, pady=10, sticky="ew")
 
-        self._setup_search_bar(panel)
-        self._setup_file_table(panel)
-        self._setup_config_buttons(panel)
+        # Create a standard tkinter Frame with padding
+        label_frame = tk.Frame(panel)
+        label_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
+
+        # Use standard tkinter Treeview widget for the file table
+        self._setup_file_table(label_frame)
+
+        # Use customtkinter widgets for the other elements
+        self._setup_search_bar(label_frame)
+        self._setup_config_buttons(label_frame)
 
         self.load_file_config_data()
 
@@ -75,14 +78,16 @@ class FileRevisionTracker(tk.Tk):
         return ttk.LabelFrame(self, text=title, padding=(10, 5))
 
     def _setup_search_bar(self, parent):
-        search_frame = ttk.Frame(parent)
+        search_frame = customtkinter.CTkFrame(parent)
         search_frame.pack(pady=10, fill=tk.X, expand=True)
 
         self.search_var = tk.StringVar()
-        self.search_entry = self._create_search_entry(search_frame)
+        self.search_entry = customtkinter.CTkEntry(search_frame, textvariable=self.search_var,
+                                                   placeholder_text="Search for files...")
         self.search_entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
+        self.search_var.trace_add("write", lambda *args: self.delayed_search())
 
-        ttk.Button(search_frame, text="Reset", command=self.reset_search).pack(side=tk.RIGHT, padx=5)
+        customtkinter.CTkButton(search_frame, text="Reset", command=self.reset_search).pack(side=tk.RIGHT, padx=5)
 
     def _create_search_entry(self, parent):
         entry = tk.Entry(parent, textvariable=self.search_var, fg='grey')
@@ -100,17 +105,17 @@ class FileRevisionTracker(tk.Tk):
         self.table.pack(fill=tk.BOTH, expand=True)
 
     def _setup_config_buttons(self, parent):
-        btn_frame = ttk.Frame(parent)
+        btn_frame = customtkinter.CTkFrame(parent)
         btn_frame.pack(fill=tk.X, expand=True)
 
-        # Add these lines to create the buttons and pack them into the frame.
-        ttk.Button(btn_frame, text="Import", command=self.import_config).pack(side=tk.LEFT, padx=10)
-        ttk.Button(btn_frame, text="Export", command=self.export_config).pack(side=tk.LEFT, padx=10)
-
-        ttk.Button(btn_frame, text="Add", command=self.add_file_config).pack(side=tk.LEFT, padx=10)
-        ttk.Button(btn_frame, text="Edit", command=self.edit_file_config).pack(side=tk.LEFT, padx=10)
-        ttk.Button(btn_frame, text="Delete", command=self.delete_file_config).pack(side=tk.LEFT, padx=10)
-        ttk.Button(btn_frame, text="Reload Config", command=self.reload_config).pack(side=tk.RIGHT, padx=10)
+        # Use customtkinter buttons for improved styling
+        customtkinter.CTkButton(btn_frame, text="Import", command=self.import_config).pack(side=tk.LEFT, padx=10)
+        customtkinter.CTkButton(btn_frame, text="Export", command=self.export_config).pack(side=tk.LEFT, padx=10)
+        customtkinter.CTkButton(btn_frame, text="Add", command=self.add_file_config).pack(side=tk.LEFT, padx=10)
+        customtkinter.CTkButton(btn_frame, text="Edit", command=self.edit_file_config).pack(side=tk.LEFT, padx=10)
+        customtkinter.CTkButton(btn_frame, text="Delete", command=self.delete_file_config).pack(side=tk.LEFT, padx=10)
+        customtkinter.CTkButton(btn_frame, text="Reload Config", command=self.reload_config).pack(side=tk.RIGHT,
+                                                                                                  padx=10)
 
     def load_file_config_data(self):
         for item in self.table.get_children():
@@ -308,36 +313,29 @@ class FileRevisionTracker(tk.Tk):
             json.dump(self.manager.FILE_PATHS, file, indent=4)
 
     def create_dark_mode_button(self):
-        """Create a button to toggle dark mode."""
-        dark_mode_button = ttk.Button(self, text="Dark Mode", command=self.toggle_dark_mode)
+        dark_mode_button = customtkinter.CTkButton(self, text="Dark Mode", command=self.toggle_dark_mode)
         dark_mode_button.grid(row=3, column=0, padx=10, pady=10, sticky="w")
 
     def toggle_dark_mode(self):
-        """Toggle dark mode on/off."""
         self.dark_mode = not self.dark_mode
         self.update_dark_mode()
 
     def update_dark_mode(self):
-        """Update the UI based on dark mode status."""
-        bg_color = DARK_BG_COLOR if self.dark_mode else "white"
-        text_color = DARK_TEXT_COLOR if self.dark_mode else "black"
+        # Define colors based on dark or light mode
+        if self.dark_mode:
+            bg_color = "black"
+            text_color = "white"
+        else:
+            bg_color = "white"
+            text_color = "black"
 
-        # Update the background color and text color of the main window
-        self.configure(bg=bg_color)
+        # Update widget colors
+        self.update_widget_colors(self, bg_color, text_color)
 
-        # Update the background color and text color of all widgets
-        self.update_widget_colors(self)
-
-        # Update the background color of the log panel
-        self.log_text.configure(bg=DARK_BG_COLOR if self.dark_mode else "white")
-
-    def update_widget_colors(self, widget):
-        """Recursively update widget colors."""
-        widget.configure(bg=DARK_BG_COLOR if self.dark_mode else "white",
-                         fg=DARK_TEXT_COLOR if self.dark_mode else "black")
-
-        for child in widget.winfo_children():
-            self.update_widget_colors(child)
+    def update_widget_colors(self, widget, bg_color, text_color):
+        widget.configure(background=bg_color)  # Use 'background' instead of 'bg_color'
+        if hasattr(widget, 'configure_text_color'):
+            widget.configure_text_color(text_color)
 
 
 if __name__ == "__main__":
