@@ -49,7 +49,8 @@ A Python script for monitoring and managing file revisions based on file modific
 
 ### GUI
 
-![Screenshot 2023-09-10 190014](https://github.com/nanaksingh13/FileRevisionManager/assets/66524832/fd0cb794-f117-4a6c-8a4c-ca57b1c83cdd)
+![Screenshot 2023-09-13 015910](https://github.com/nsdhanoa/FileRevisionManager/assets/66524832/d48e7a49-5629-4e26-9c81-76daa6c629ba)
+
 
 ### Upcoming Feature
 
