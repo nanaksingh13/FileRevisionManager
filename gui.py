@@ -52,57 +52,77 @@ class FileRevisionTracker(tk.Tk):
         self.menu_bar = tk.Menu(self)
         self.config(menu=self.menu_bar)
 
+    
     def init_ui(self):
         """Initialize the user interface."""
+        self.create_scrollable_frame()
         self.create_status_panel()
         self.create_file_config_panel()
         self.create_log_panel()
-        self.create_dark_mode_button()  # Add this line to create the Dark Mode button
 
+    def create_scrollable_frame(self):
+        canvas = tk.Canvas(self)
+
+        scrollbar = ttk.Scrollbar(self, orient="vertical", command=canvas.yview)
+        scrollbar.pack(side="right", fill="y")
+
+        canvas.configure(yscrollcommand=scrollbar.set)
+
+        self.scrollable_frame = ttk.Frame(canvas)
+        canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
+
+        canvas.bind("<Configure>", self.on_canvas_configure)
+
+    def on_canvas_configure(self, event):
+        self.scrollable_frame.update_idletasks()
+        canvas_width = event.width  # Use event.width to get the canvas width
+        self.scrollable_frame.config(width=canvas_width)
+
+    def create_status_panel(self):
+        panel = ttk.LabelFrame(self, text="Status", padding=(10, 5))
+        panel.pack(fill=tk.BOTH, padx=10, pady=5, expand=True)
+
+        self.status_label = ttk.Label(panel, text="Monitoring")
+        self.status_label.pack(side=tk.LEFT, padx=10, pady=5)
+
+        start_button = ttk.Button(panel, text="Start Monitoring", command=self.start_monitoring)
+        start_button.pack(side=tk.LEFT, padx=10, pady=5)
+
+        stop_button = ttk.Button(panel, text="Stop Monitoring", command=self.stop_monitoring)
+        stop_button.pack(side=tk.LEFT, padx=10, pady=5)
+
+        panel.pack_configure(padx=10, pady=5)
 
     def create_file_config_panel(self):
-        """Panel for file configuration."""
-        panel = customtkinter.CTkFrame(self)
-        panel.grid(row=1, column=0, padx=10, pady=10, sticky="ew")  # Adjusted row to 1
+        panel = ttk.LabelFrame(self, text="File Configuration", padding=(10, 5))
+        panel.pack(fill=tk.BOTH, padx=10, pady=10, expand=True)  # Use pack geometry manager for the file config panel
 
-        # Use customtkinter widgets for the search bar
+        # Use ttk.Entry for the search bar
         self._setup_search_bar(panel)
 
         # Create a standard tkinter Frame with padding for the file table
-        label_frame = tk.Frame(panel)
-        label_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
+        label_frame = ttk.Frame(panel)
+        label_frame.pack(fill=tk.BOTH, padx=10, pady=5, expand=True)  # Use pack for the label frame
 
         # Use standard tkinter Treeview widget for the file table
         self._setup_file_table(label_frame)
 
-        # Use customtkinter widgets for the other elements
+        # Use ttk.Button for the other elements
         self._setup_config_buttons(label_frame)
 
         self.load_file_config_data()
 
-    def _create_panel(self, title):
-        return ttk.LabelFrame(self, text=title, padding=(10, 5))
-
     def _setup_search_bar(self, parent):
-        search_frame = customtkinter.CTkFrame(parent)
-        search_frame.pack(pady=10, fill=tk.X, expand=True)
+        search_frame = ttk.Frame(parent)
+        search_frame.pack(fill=tk.BOTH, padx=10, pady=10, expand=True)
 
         self.search_var = tk.StringVar()
-        self.search_entry = customtkinter.CTkEntry(search_frame, textvariable=self.search_var,
-                                                   placeholder_text="Search for files...")
-        self.search_entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
+        self.search_entry = ttk.Entry(search_frame, textvariable=self.search_var)
+        self.search_entry.pack(side=tk.LEFT, fill=tk.X, ipady=5, expand=True)
         self.search_var.trace_add("write", lambda *args: self.delayed_search())
 
-        customtkinter.CTkButton(search_frame, text="Reset", command=self.reset_search).pack(side=tk.RIGHT, padx=5)
-
-    def _create_search_entry(self, parent):
-        entry = tk.Entry(parent, textvariable=self.search_var, fg='grey')
-        entry.insert(0, 'Search for files...')
-        entry.bind('<Key>', self.on_key_press)
-        entry.bind('<FocusIn>', self.on_entry_click)
-        entry.bind('<FocusOut>', self.on_focusout)
-        self.search_var.trace_add("write", lambda *args: self.delayed_search())
-        return entry
+        reset_button = ttk.Button(search_frame, text="Reset", command=self.reset_search)
+        reset_button.pack(side=tk.RIGHT)
 
     def _setup_file_table(self, parent):
         self.table = ttk.Treeview(parent, columns=('File Path', 'Revision Directory'), show="headings")
@@ -111,17 +131,15 @@ class FileRevisionTracker(tk.Tk):
         self.table.pack(fill=tk.BOTH, expand=True)
 
     def _setup_config_buttons(self, parent):
-        btn_frame = customtkinter.CTkFrame(parent)
+        btn_frame = ttk.Frame(parent)
         btn_frame.pack(fill=tk.X, expand=True)
 
-        # Use customtkinter buttons for improved styling
-        customtkinter.CTkButton(btn_frame, text="Import", command=self.import_config).pack(side=tk.LEFT, padx=10)
-        customtkinter.CTkButton(btn_frame, text="Export", command=self.export_config).pack(side=tk.LEFT, padx=10)
-        customtkinter.CTkButton(btn_frame, text="Add", command=self.add_file_config).pack(side=tk.LEFT, padx=10)
-        customtkinter.CTkButton(btn_frame, text="Edit", command=self.edit_file_config).pack(side=tk.LEFT, padx=10)
-        customtkinter.CTkButton(btn_frame, text="Delete", command=self.delete_file_config).pack(side=tk.LEFT, padx=10)
-        customtkinter.CTkButton(btn_frame, text="Reload Config", command=self.reload_config).pack(side=tk.RIGHT,
-                                                                                                  padx=10)
+        ttk.Button(btn_frame, text="Import", command=self.import_config).pack(side=tk.LEFT, padx=1, pady=1)
+        ttk.Button(btn_frame, text="Export", command=self.export_config).pack(side=tk.LEFT, padx=1, pady=1)
+        ttk.Button(btn_frame, text="Add", command=self.add_file_config).pack(side=tk.LEFT, padx=1, pady=1)
+        ttk.Button(btn_frame, text="Edit", command=self.edit_file_config).pack(side=tk.LEFT, padx=1, pady=1)
+        ttk.Button(btn_frame, text="Delete", command=self.delete_file_config).pack(side=tk.LEFT, padx=1, pady=1)
+        ttk.Button(btn_frame, text="Reload Config", command=self.reload_config).pack(side=tk.RIGHT, padx=1, pady=1)
 
     def load_file_config_data(self):
         for item in self.table.get_children():
@@ -133,27 +151,24 @@ class FileRevisionTracker(tk.Tk):
     def monitor_files(self):
         self.manager.start_monitoring()
 
-    def create_status_panel(self):
-        panel = self._create_panel("Status")
-        panel.grid(row=0, column=0, padx=10, pady=10, sticky="ew")
-
-        self.status_label = ttk.Label(panel, text="Monitoring")
-        self.status_label.grid(row=0, column=0, sticky="w")
-
-        ttk.Button(panel, text="Start Monitoring", command=self.start_monitoring).grid(row=1, column=0)
-        ttk.Button(panel, text="Stop Monitoring", command=self.stop_monitoring).grid(row=1, column=1)
-
     def create_log_panel(self):
-        panel = self._create_panel("Log Panel")
-        panel.grid(row=3, column=0, padx=10, pady=10, sticky="ew")
+        self.log_panel = ttk.LabelFrame(self, text="Log Panel", padding=(10, 5))
+        self.log_panel.pack(fill=tk.BOTH, padx=10, pady=10, expand=True)  # Use pack for the log panel
 
-        self._setup_log_text(panel)
+        self._setup_log_text(self.log_panel)
+
+        # Optionally, add padding for better spacing
+        self.log_panel.pack_configure(padx=10, pady=(0, 10))
 
     def _setup_log_text(self, parent):
-        self.log_text = tk.Text(parent, wrap=tk.WORD, height=15, width=100)
-        self.log_text.grid(row=0, column=0, sticky="ew", padx=5, pady=5)
+        # Create a frame inside the parent Labelframe
+        log_frame = tk.Frame(parent)
+        log_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
 
-        scroll = ttk.Scrollbar(parent, command=self.log_text.yview)
+        self.log_text = tk.Text(log_frame, wrap=tk.WORD, height=15, width=115)
+        self.log_text.grid(row=0, column=0, sticky="ew")
+
+        scroll = ttk.Scrollbar(log_frame, command=self.log_text.yview)
         scroll.grid(row=0, column=1, sticky='ns')
         self.log_text.config(yscrollcommand=scroll.set)
 
@@ -212,27 +227,31 @@ class FileRevisionTracker(tk.Tk):
             return
 
         selected_item = selected_item[0]
-        file_path, revision_dir = self.table.item(selected_item, "values")
-        del self.manager.FILE_PATHS[file_path]
-        self.write_to_csv()
-        self.load_file_config_data()
+        file_path_str, revision_dir = self.table.item(selected_item, "values")
 
-    def on_entry_click(self, event):
+        # Convert the file_path_str to a WindowsPath object for comparison
+        file_path = Path(file_path_str)
+
+        if file_path in self.manager.FILE_PATHS:
+            del self.manager.FILE_PATHS[file_path]
+            self.write_to_csv()  # Update the CSV file
+            self.load_file_config_data()
+            logging.info(f"File removed:{file_path}")
+        else:
+            logging.info(f"Error removing:{file_path}")
+
+    def on_entry_click(self):
         if self.search_entry.get().strip() == 'Search for files...':
             self.search_entry.delete(0, "end")
-            self.search_entry.config(fg='black')
 
-    def on_key_press(self, event):
-        current_text = self.search_entry.get()
+    def on_key_press(self):
         if self.search_entry.get().strip() == 'Search for files...':
             self.search_entry.delete(0, "end")
-            self.search_entry.config(fg='black')
 
-    def on_focusout(self, event):
+    def on_focusout(self):
         current_text = self.search_entry.get()
         if current_text == '':
             self.search_entry.insert(0, 'Search for files...')
-            self.search_entry.config(fg='grey')
 
     def reset_search(self):
         self.search_var.set("")
@@ -266,7 +285,7 @@ class FileRevisionTracker(tk.Tk):
 
     def delayed_search(self):
         """Initiate the search after a delay."""
-        # If there's an existing scheduled search, cancel it
+        # If there's an existing-scheduled search, cancel it
         if self._after_id:
             self.after_cancel(self._after_id)
 
@@ -317,31 +336,6 @@ class FileRevisionTracker(tk.Tk):
     def _export_to_json(self, filename):
         with open(filename, 'w') as file:
             json.dump(self.manager.FILE_PATHS, file, indent=4)
-
-    def create_dark_mode_button(self):
-        dark_mode_button = customtkinter.CTkButton(self, text="Dark Mode", command=self.toggle_dark_mode)
-        dark_mode_button.grid(row=3, column=0, padx=10, pady=10, sticky="w")
-
-    def toggle_dark_mode(self):
-        self.dark_mode = not self.dark_mode
-        self.update_dark_mode()
-
-    def update_dark_mode(self):
-        # Define colors based on dark or light mode
-        if self.dark_mode:
-            bg_color = "black"
-            text_color = "white"
-        else:
-            bg_color = "white"
-            text_color = "black"
-
-        # Update widget colors
-        self.update_widget_colors(self, bg_color, text_color)
-
-    def update_widget_colors(self, widget, bg_color, text_color):
-        widget.configure(background=bg_color)  # Use 'background' instead of 'bg_color'
-        if hasattr(widget, 'configure_text_color'):
-            widget.configure_text_color(text_color)
 
 
 if __name__ == "__main__":
