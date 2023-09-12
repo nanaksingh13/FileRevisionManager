@@ -32,8 +32,6 @@ class TextHandler(logging.Handler):
         self.text_widget.insert(tk.END, log_entry + '\n')
         self.text_widget.see(tk.END)
         self.text_widget.config(state=tk.DISABLED)
-
-
 class FileRevisionTracker(tk.Tk):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -51,17 +49,21 @@ class FileRevisionTracker(tk.Tk):
 
     def init_ui(self):
         """Initialize the user interface."""
-        self.create_file_config_panel()
         self.create_status_panel()
+        self.create_file_config_panel()
         self.create_log_panel()
-        self.create_dark_mode_button()
+        self.create_dark_mode_button()  # Add this line to create the Dark Mode button
+
 
     def create_file_config_panel(self):
         """Panel for file configuration."""
         panel = customtkinter.CTkFrame(self)
-        panel.grid(row=0, column=0, padx=10, pady=10, sticky="ew")
+        panel.grid(row=1, column=0, padx=10, pady=10, sticky="ew")  # Adjusted row to 1
 
-        # Create a standard tkinter Frame with padding
+        # Use customtkinter widgets for the search bar
+        self._setup_search_bar(panel)
+
+        # Create a standard tkinter Frame with padding for the file table
         label_frame = tk.Frame(panel)
         label_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
 
@@ -69,7 +71,6 @@ class FileRevisionTracker(tk.Tk):
         self._setup_file_table(label_frame)
 
         # Use customtkinter widgets for the other elements
-        self._setup_search_bar(label_frame)
         self._setup_config_buttons(label_frame)
 
         self.load_file_config_data()
@@ -129,7 +130,7 @@ class FileRevisionTracker(tk.Tk):
 
     def create_status_panel(self):
         panel = self._create_panel("Status")
-        panel.grid(row=1, column=0, padx=10, pady=10, sticky="ew")
+        panel.grid(row=0, column=0, padx=10, pady=10, sticky="ew")
 
         self.status_label = ttk.Label(panel, text="Monitoring")
         self.status_label.grid(row=0, column=0, sticky="w")
@@ -139,7 +140,7 @@ class FileRevisionTracker(tk.Tk):
 
     def create_log_panel(self):
         panel = self._create_panel("Log Panel")
-        panel.grid(row=2, column=0, padx=10, pady=10, sticky="ew")
+        panel.grid(row=3, column=0, padx=10, pady=10, sticky="ew")
 
         self._setup_log_text(panel)
 
