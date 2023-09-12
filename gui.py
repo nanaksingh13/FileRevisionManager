@@ -1,10 +1,15 @@
 import tkinter as tk
-from tkinter import ttk, filedialog, simpledialog
 import threading
 import csv
 import logging
 import json
+from tkinter import ttk, filedialog, simpledialog
 from file_revision import FileRevisionManager
+import customtkinter
+
+# Set appearance mode and default color theme
+customtkinter.set_appearance_mode("Dark")
+customtkinter.set_default_color_theme("blue")
 
 LOG_FILE = "file_revision.log"
 MAX_LOG_LINES = 100
