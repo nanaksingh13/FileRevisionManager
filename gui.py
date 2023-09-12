@@ -1,5 +1,3 @@
-## GUI file
-
 import tkinter as tk
 from tkinter import ttk, filedialog, simpledialog
 import threading
@@ -10,6 +8,10 @@ from file_revision import FileRevisionManager
 
 LOG_FILE = "file_revision.log"
 MAX_LOG_LINES = 100
+
+# Define dark mode colors
+DARK_BG_COLOR = "#2E2E2E"
+DARK_TEXT_COLOR = "#FFFFFF"
 
 
 class TextHandler(logging.Handler):
@@ -35,6 +37,7 @@ class FileRevisionTracker(tk.Tk):
         self.title("File Revision Tracker")
         self.geometry("900x700")
 
+        self.dark_mode = False  # Initially set to light mode
         self.manager = FileRevisionManager()
         self._after_id = None
 
@@ -49,6 +52,8 @@ class FileRevisionTracker(tk.Tk):
         self.create_file_config_panel()
         self.create_status_panel()
         self.create_log_panel()
+        self.create_dark_mode_button()  # Add a button to toggle dark mode
+
 
     def create_file_config_panel(self):
         """Panel for file configuration."""
@@ -296,6 +301,38 @@ class FileRevisionTracker(tk.Tk):
     def _export_to_json(self, filename):
         with open(filename, 'w') as file:
             json.dump(self.manager.FILE_PATHS, file, indent=4)
+
+    def create_dark_mode_button(self):
+        """Create a button to toggle dark mode."""
+        dark_mode_button = ttk.Button(self, text="Dark Mode", command=self.toggle_dark_mode)
+        dark_mode_button.grid(row=3, column=0, padx=10, pady=10, sticky="w")
+
+    def toggle_dark_mode(self):
+        """Toggle dark mode on/off."""
+        self.dark_mode = not self.dark_mode
+        self.update_dark_mode()
+
+    def update_dark_mode(self):
+        """Update the UI based on dark mode status."""
+        bg_color = DARK_BG_COLOR if self.dark_mode else "white"
+        text_color = DARK_TEXT_COLOR if self.dark_mode else "black"
+
+        # Update the background color and text color of the main window
+        self.configure(bg=bg_color)
+
+        # Update the background color and text color of all widgets
+        self.update_widget_colors(self)
+
+        # Update the background color of the log panel
+        self.log_text.configure(bg=DARK_BG_COLOR if self.dark_mode else "white")
+
+    def update_widget_colors(self, widget):
+        """Recursively update widget colors."""
+        widget.configure(bg=DARK_BG_COLOR if self.dark_mode else "white",
+                         fg=DARK_TEXT_COLOR if self.dark_mode else "black")
+
+        for child in widget.winfo_children():
+            self.update_widget_colors(child)
 
 
 if __name__ == "__main__":
