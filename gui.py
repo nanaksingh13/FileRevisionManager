@@ -1,22 +1,15 @@
 import tkinter as tk
+import tkinter.ttk as ttk
 import threading
 import csv
 import logging
 import json
-from tkinter import ttk, filedialog, simpledialog
+from tkinter import filedialog, simpledialog
 from file_revision import FileRevisionManager
-import customtkinter
-
-# Set appearance mode and default color theme
-customtkinter.set_appearance_mode("Dark")
-customtkinter.set_default_color_theme("blue")
+from pathlib import Path
 
 LOG_FILE = "file_revision.log"
 MAX_LOG_LINES = 100
-
-# Define dark mode colors
-DARK_BG_COLOR = "#2E2E2E"
-DARK_TEXT_COLOR = "#FFFFFF"
 
 
 class TextHandler(logging.Handler):
@@ -32,20 +25,32 @@ class TextHandler(logging.Handler):
         self.text_widget.insert(tk.END, log_entry + '\n')
         self.text_widget.see(tk.END)
         self.text_widget.config(state=tk.DISABLED)
+
+
 class FileRevisionTracker(tk.Tk):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.log_panel = None
+        self.scrollable_frame = None
         self.title("File Revision Tracker")
-        self.geometry("900x700")
-        self.dark_mode = False  # Initially set to light mode
+        self.geometry("1000x900")
+        self.dark_mode = False
         self.manager = FileRevisionManager()
         self._after_id = None
-        customtkinter.set_widget_scaling(1.0)  # Set UI scaling to 100%
+        ttk.Style().configure("TButton", padding=6)
+        ttk.Style().configure("TLabel", padding=6)
+        ttk.Style().configure("TFrame", padding=6)
+
+        # Initialize status_label as an instance variable
+        self.status_label = ttk.Label()
 
         self.init_ui()
         self.thread = threading.Thread(target=self.monitor_files)
         self.thread.daemon = True
         self.thread.start()
+
+        self.menu_bar = tk.Menu(self)
+        self.config(menu=self.menu_bar)
 
     def init_ui(self):
         """Initialize the user interface."""
