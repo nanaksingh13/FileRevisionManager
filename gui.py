@@ -27,12 +27,12 @@ class TextHandler(logging.Handler):
         self.text_widget.config(state=tk.DISABLED)
 
 
-class FileRevisionTracker(tk.Tk):
+class FileRevisionGUI(tk.Tk):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.log_panel = None
         self.scrollable_frame = None
-        self.title("File Revision Tracker")
+        self.title("File Revision Manager")
         self.geometry("1000x900")
         self.dark_mode = False
         self.manager = FileRevisionManager()
@@ -52,7 +52,6 @@ class FileRevisionTracker(tk.Tk):
         self.menu_bar = tk.Menu(self)
         self.config(menu=self.menu_bar)
 
-    
     def init_ui(self):
         """Initialize the user interface."""
         self.create_scrollable_frame()
@@ -112,6 +111,25 @@ class FileRevisionTracker(tk.Tk):
 
         self.load_file_config_data()
 
+    def _setup_file_table(self, parent):
+        self.table = ttk.Treeview(parent, columns=('File Path', 'Revision Directory'), show="headings")
+
+        # Customize column headers
+        self.table.heading('File Path', text='File Path')
+        self.table.heading('Revision Directory', text='Revision Directory')
+
+        # Customize row appearance (e.g., alternating row colors)
+        self.table.tag_configure('evenrow', background='#f0f0f0')
+        self.table.tag_configure('oddrow', background='#ffffff')
+
+        # Load file configuration data and populate the Treeview
+        self.load_file_config_data()
+        for i, (path, revision_dir) in enumerate(self.manager.FILE_PATHS.items()):
+            tags = ('evenrow', 'oddrow')[i % 2]
+            self.table.insert("", tk.END, values=(str(path), revision_dir), tags=tags)
+
+        self.table.pack(fill=tk.BOTH, expand=True)
+
     def _setup_search_bar(self, parent):
         search_frame = ttk.Frame(parent)
         search_frame.pack(fill=tk.BOTH, padx=10, pady=10, expand=True)
@@ -124,12 +142,6 @@ class FileRevisionTracker(tk.Tk):
         reset_button = ttk.Button(search_frame, text="Reset", command=self.reset_search)
         reset_button.pack(side=tk.RIGHT)
 
-    def _setup_file_table(self, parent):
-        self.table = ttk.Treeview(parent, columns=('File Path', 'Revision Directory'), show="headings")
-        self.table.heading('File Path', text='File Path')
-        self.table.heading('Revision Directory', text='Revision Directory')
-        self.table.pack(fill=tk.BOTH, expand=True)
-
     def _setup_config_buttons(self, parent):
         btn_frame = ttk.Frame(parent)
         btn_frame.pack(fill=tk.X, expand=True)
@@ -139,7 +151,7 @@ class FileRevisionTracker(tk.Tk):
         ttk.Button(btn_frame, text="Add", command=self.add_file_config).pack(side=tk.LEFT, padx=1, pady=1)
         ttk.Button(btn_frame, text="Edit", command=self.edit_file_config).pack(side=tk.LEFT, padx=1, pady=1)
         ttk.Button(btn_frame, text="Delete", command=self.delete_file_config).pack(side=tk.LEFT, padx=1, pady=1)
-        ttk.Button(btn_frame, text="Reload Config", command=self.reload_config).pack(side=tk.RIGHT, padx=1, pady=1)
+        ttk.Button(btn_frame, text="Reload", command=self.reload_config).pack(side=tk.RIGHT, padx=1, pady=1)
 
     def load_file_config_data(self):
         for item in self.table.get_children():
@@ -339,5 +351,5 @@ class FileRevisionTracker(tk.Tk):
 
 
 if __name__ == "__main__":
-    app = FileRevisionTracker()
+    app = FileRevisionGUI()
     app.mainloop()
