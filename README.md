@@ -55,7 +55,7 @@ A Python script for monitoring and managing file revisions based on file modific
 
 ### Upcoming Feature
 
-- [ ] **Batch Import/Export:** Allow users to import a batch of file configurations at once (from a CSV or JSON file) or export the current configurations.
+- [x] **Batch Import/Export:** Allow users to import a batch of file configurations at once (from a CSV or JSON file) or export the current configurations.
 - [ ] **Drag and Drop:** Allow users to drag and drop files into the GUI for monitoring, rather than only using the file dialog.
 - [x] **Search Bar:** Add a search bar at the top of the configuration table to allow users to easily find a particular file or revision directory.
 - [ ] **Real-time Notification:** Implement desktop notifications to alert the user when a file has been modified.
