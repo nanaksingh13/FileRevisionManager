@@ -3,7 +3,7 @@
 ![Python Version](https://img.shields.io/badge/python-3.8%2B-blue)
 ![Watchdog Version](https://img.shields.io/badge/watchdog-2.1%2B-green)
 ![Status](https://img.shields.io/badge/Under%20Development-green)
-![Status](https://img.shields.io/badge/GUI)
+![Status](https://img.shields.io/badge/GUI-purple)
 
 A Python script for monitoring and managing file revisions based on file modifications. This script uses the Watchdog library to track changes in specified files and directories, creating new revisions with timestamps when changes occur.
 
