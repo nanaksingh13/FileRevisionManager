@@ -7,7 +7,12 @@ import json
 from tkinter import filedialog, simpledialog
 from file_revision import FileRevisionManager
 from pathlib import Path
-
+from file_operations import (
+    import_config_from_csv,
+    export_config_to_csv,
+    import_config_from_json,
+    export_config_to_json,
+)
 
 LOG_FILE = "file_revision.log"
 MAX_LOG_LINES = 100
@@ -49,15 +54,6 @@ class FileRevisionGUI(tk.Tk):
         self.thread = threading.Thread(target=self.monitor_files)
         self.thread.daemon = True
         self.thread.start()
-
-        # Create a label to handle file drops
-        self.drop_label = tk.Label(self, text="Drop files here", bd=2, relief="solid", padx=10, pady=10)
-        self.drop_label.pack(fill=tk.BOTH, expand=True)
-        self.drop_label.bind("<Enter>", self.on_enter)
-        self.drop_label.bind("<Leave>", self.on_leave)
-
-        # Bind the <<Drop>> event to handle file drops
-        self.drop_label.bind('<<Drop>>', self.handle_drop)
 
         self.menu_bar = tk.Menu(self)
         self.config(menu=self.menu_bar)
@@ -206,16 +202,6 @@ class FileRevisionGUI(tk.Tk):
                 self.log_text.insert(tk.END, line)
             self.log_text.see(tk.END)
 
-    def read_csv_file(self):
-        config_file = 'file_config.csv'
-        try:
-            with open(config_file, 'r') as file:
-                reader = csv.DictReader(file)
-                for row in reader:
-                    self.manager.FILE_PATHS[row['file_path']] = row['revision_dir']
-        except FileNotFoundError:
-            logging.error("CSV file not found.")
-
     def _configure_log_handler(self):
         text_handler = TextHandler(self.log_text)
         formatter = logging.Formatter('[%(asctime)s] [%(levelname)s] - %(message)s')
@@ -238,33 +224,6 @@ class FileRevisionGUI(tk.Tk):
                 self.manager.FILE_PATHS[file_path] = revision_dir
                 self.write_to_csv()
                 self.load_file_config_data()
-
-    def _ask_file_path(self):
-        try:
-            # Attempt to get the dropped file path from the clipboard
-            file_path = self.clipboard_get()
-            # Clear the clipboard contents
-            self.clipboard_clear()
-            return file_path
-        except tk.TclError:
-            # If clipboard_get fails, use file dialog
-            return filedialog.askopenfilename()
-
-    def on_enter(self, event):
-        self.drop_label.config(bg="lightgray")
-
-    def on_leave(self, event):
-        self.drop_label.config(bg="white")
-
-    def handle_drop(self, event):
-        file_paths = event.data
-        if file_paths:
-            for file_path in file_paths:
-                revision_dir = simpledialog.askstring("Input", "Enter Revision Directory Name")
-                if revision_dir:
-                    self.manager.FILE_PATHS[file_path] = revision_dir
-                    self.write_to_csv()
-                    self.load_file_config_data()
 
     def edit_file_config(self):
         selected_item = self.table.selection()
@@ -356,10 +315,11 @@ class FileRevisionGUI(tk.Tk):
         filename = filedialog.askopenfilename(filetypes=filetypes)
 
         if filename.endswith('.csv'):
-            self._import_from_csv(filename)
+            self.manager.FILE_PATHS = import_config_from_csv(filename, self.manager.FILE_PATHS)
         elif filename.endswith('.json'):
-            self._import_from_json(filename)
+            self.manager.FILE_PATHS = import_config_from_json(filename, self.manager.FILE_PATHS)
 
+        self.load_file_config_data()
         self.write_to_csv()
 
     def export_config(self):
@@ -367,34 +327,9 @@ class FileRevisionGUI(tk.Tk):
         filename = filedialog.asksaveasfilename(filetypes=filetypes)
 
         if filename.endswith('.csv'):
-            self._export_to_csv(filename)
+            export_config_to_csv(filename, self.manager.FILE_PATHS)
         elif filename.endswith('.json'):
-            self._export_to_json(filename)
-
-    def _import_from_csv(self, filename):
-        with open(filename, 'r') as file:
-            reader = csv.DictReader(file)
-            for row in reader:
-                self.manager.FILE_PATHS[row['file_path']] = row['revision_dir']
-        self.load_file_config_data()
-
-    def _export_to_csv(self, filename):
-        with open(filename, 'w', newline='') as file:
-            fieldnames = ['file_path', 'revision_dir']
-            writer = csv.DictWriter(file, fieldnames=fieldnames)
-            writer.writeheader()
-            for path, revision_dir in self.manager.FILE_PATHS.items():
-                writer.writerow({'file_path': path, 'revision_dir': revision_dir})
-
-    def _import_from_json(self, filename):
-        with open(filename, 'r') as file:
-            data = json.load(file)
-            self.manager.FILE_PATHS = data
-        self.load_file_config_data()
-
-    def _export_to_json(self, filename):
-        with open(filename, 'w') as file:
-            json.dump(self.manager.FILE_PATHS, file, indent=4)
+            export_config_to_json(filename, self.manager.FILE_PATHS)
 
 
 if __name__ == "__main__":
