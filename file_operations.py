@@ -19,7 +19,7 @@ def import_config_from_json(filename, current_data):
     with open(filename, 'r') as file:
         data = json.load(file)
 
-    current_data.update(data)  # Update the current data with the imported data
+    current_data.update(data)
     return current_data
 
 
