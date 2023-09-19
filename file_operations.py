@@ -14,9 +14,8 @@ def import_config_from_csv(filename, current_data):
 
     return current_data
 
-
+# Append file configurations from a JSON file to the current data.
 def import_config_from_json(filename, current_data):
-    """Append file configurations from a JSON file to the current data."""
     with open(filename, 'r') as file:
         data = json.load(file)
 
