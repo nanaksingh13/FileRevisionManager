@@ -3,9 +3,8 @@ import json
 from pathlib import Path
 from file_revision import FileRevisionManager
 
-
+# Append file configurations from a CSV file to the current data.
 def import_config_from_csv(filename, current_data):
-    """Append file configurations from a CSV file to the current data."""
     manager = FileRevisionManager()
 
     with open(filename, 'r') as file:
