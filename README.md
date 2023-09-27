@@ -17,6 +17,7 @@ A Python script for monitoring and managing file revisions based on file modific
 - Intrutive Graphical User Interface.
 - Notification via Email.
 - **Upcoming** Automatically Cleanup of older revisions.
+- **Upcoming** Dark Mode
 
 ## Getting Started
 
