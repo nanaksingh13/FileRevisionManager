@@ -14,8 +14,9 @@ A Python script for monitoring and managing file revisions based on file modific
 - Configuration management through a CSV file.
 - Duplicate file prevention based on MD5 checksum.
 - Flexible and customizable for different file revision needs.
-- Intrutive Graphical User Interface
-- Notification via Email
+- Intrutive Graphical User Interface.
+- Notification via Email.
+- **Upcoming** Automatically Cleanup of older revisions.
 
 ## Getting Started
 
